@@ -11,34 +11,34 @@ exports.signup = (req, res) => {
       });
       user.save()
         .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-        .catch((error) => res.status(400).json({ error }));
+        .catch((error) => res.status(400).json({ message: error.message }));
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => res.status(500).json({ message: error.message }));
 };
 
 exports.login = (req, res) => {
   User.findOne({ email: req.body.email })
     .then((user) => {
       if (!user) {
-        res.status(401).json({ error: 'Utilisateur non trouvé !' });
+        res.status(401).json({ message: 'Utilisateur non trouvé !' });
         return;
       }
       bcrypt.compare(req.body.password, user.password)
         .then((valid) => {
           if (!valid) {
-            res.status(401).json({ error: 'Mot de passe incorrect !' });
+            res.status(401).json({ message: 'Mot de passe incorrect !' });
             return;
           }
           res.status(200).json({
             userId: user.id,
             token: jwt.sign(
               { userId: user.id },
-              'RANDOM_TOKEN_SECRET',
+              process.env.JWT_SECRET,
               { expiresIn: '24h' },
             ),
           });
         })
-        .catch((error) => res.status(500).json({ error }));
+        .catch((error) => res.status(500).json({ message: error.message }));
     })
-    .catch((error) => res.status(500).json({ error }));
+    .catch((error) => res.status(500).json({ message: error.message }));
 };
