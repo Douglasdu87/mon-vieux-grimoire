@@ -5,13 +5,15 @@ exports.createBook = (req, res) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject.id;
   delete bookObject.userId;
+  
   const book = new Book({
     ...bookObject,
     userId: req.auth.userId,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-    ratings: [],
-    averageRating: 0,
+    ratings: bookObject.ratings,
+    averageRating: bookObject.ratings[0].grade,
   });
+console.log(req.body);
 
   book.save()
     .then(() => { res.status(201).json({ message: 'Objet enregistré !' }); })
